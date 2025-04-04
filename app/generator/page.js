@@ -37,9 +37,30 @@ export default function Generator() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsGenerating(true);
+    setError('');
+    
+    // Add loading message
+    const loadingMessages = [
+      "Analyzing your business details...",
+      "Creating your customized business plan...",
+      "Finalizing business strategy...",
+      "Almost there..."
+    ];
+    
+    let loadingIndex = 0;
+    const loadingInterval = setInterval(() => {
+      setError(loadingMessages[loadingIndex % loadingMessages.length]);
+      loadingIndex++;
+    }, 3000);
     
     try {
-      const response = await fetch('/api/chat', {
+      // Set a timeout promise that will reject after 25 seconds
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timed out')), 25000);
+      });
+      
+      // Create the fetch promise
+      const fetchPromise = fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,29 +71,76 @@ export default function Generator() {
         }),
       });
       
+      // Race the fetch against the timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
       if (!response.ok) {
-        throw new Error('Failed to generate business plan');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to generate business plan');
       }
       
       const data = await response.json();
       
-      const saveResponse = await fetch('/api/plan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (!saveResponse.ok) {
-        console.error('Failed to save business plan');
+      // If there's an error message in the response even with status 200
+      if (data.error) {
+        console.warn('API returned an error:', data.error);
+        setError(`Note: ${data.message || data.error}`);
+        // Continue anyway if we have some data to work with
       }
       
-      router.push('/plan');
+      try {
+        const saveResponse = await fetch('/api/plan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!saveResponse.ok) {
+          console.error('Failed to save business plan');
+          throw new Error('Failed to save your plan');
+        }
+        
+        clearInterval(loadingInterval);
+        router.push('/plan');
+      } catch (saveError) {
+        console.error('Error saving plan:', saveError);
+        // If saving fails but we have data, try a simplified version
+        const simpleSaveResponse = await fetch('/api/plan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            businessName: formData.businessName,
+            industry: formData.industry,
+            basicData: true,
+            rawResponse: JSON.stringify(data)
+          }),
+        });
+        
+        if (simpleSaveResponse.ok) {
+          clearInterval(loadingInterval);
+          router.push('/plan');
+        } else {
+          throw saveError;
+        }
+      }
     } catch (error) {
+      clearInterval(loadingInterval);
       console.error('Error:', error);
-      setError(error.message);
+      
+      // Handle specific errors
+      if (error.message.includes('timed out')) {
+        setError('The request took too long to process. Please try again with less detailed information or retry later.');
+      } else if (error.message.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(error.message || 'An unexpected error occurred. Please try again.');
+      }
     } finally {
+      clearInterval(loadingInterval);
       setIsGenerating(false);
     }
   };

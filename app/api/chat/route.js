@@ -8,7 +8,16 @@ let model;
 
 try {
 	genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-	model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+	model = genAI.getGenerativeModel({ 
+		model: "gemini-1.5-flash",
+		systemInstruction: "Create concise, practical business plans with essential information only.",
+		generationConfig: {
+			maxOutputTokens: 2048,
+			temperature: 0.7,
+			topP: 0.8,
+			topK: 40
+		}
+	});
 } catch (error) {
 	console.error("Error initializing Google Generative AI:", error);
 }
@@ -22,7 +31,7 @@ export async function POST(request) {
 			return NextResponse.json(basicResponse);
 		}
 		
-		const prompt = `Create a detailed business plan for the following business:
+		const prompt = `Create a brief business plan for:
 		
 Business Name: ${formData.businessName || "Not specified"}
 Industry: ${formData.industry || "Not specified"}
@@ -30,90 +39,53 @@ Business Type: ${formData.businessType || "Not specified"}
 Location: ${formData.location || "Not specified"}
 Business Concept: ${formData.businessConcept || "Not specified"}
 Target Market: ${formData.targetMarket || "Not specified"}
-Unique Value Proposition: ${formData.uniqueValue || "Not specified"}
-Initial Investment: ${formData.startupCosts || "Not specified"}
+Unique Value: ${formData.uniqueValue || "Not specified"}
+Startup Costs: ${formData.startupCosts || "Not specified"}
 Expected Revenue: ${formData.expectedRevenue || "Not specified"}
 Key Milestones: ${formData.keyMilestones || "Not specified"}
 
-Provide a comprehensive business plan with the following sections. For each section, provide detailed and specific content:
+Include these sections with very brief content:
+1. Executive Summary (mission, vision, overview)
+2. Business Overview (description, problem, solution, target market, market size)
+3. Products/Services (description, pricing, distribution)
+4. Marketing (trends, segments, competition, promotion, acquisition)
+5. Operations (location, facilities, equipment, operations)
+6. Management (structure, key members, resources)
+7. Financial (costs, projections, operating costs, break-even)
+8. Risks (potential risks, mitigation)
+9. Timeline (milestones, implementation)
 
-1. EXECUTIVE SUMMARY
-- Mission Statement: Provide a clear, concise statement of the company's purpose
-- Vision Statement: Describe what the company aims to achieve in the long term
-- Business Overview: Brief description of the business, its industry position, and goals
-
-2. BUSINESS OVERVIEW
-- Detailed Description: Comprehensive explanation of the business concept
-- Problem Statement: Clear definition of the market problem being solved
-- Solution: How your business solves this problem
-- Target Market: Detailed profile of ideal customers
-- Market Size: Quantify the total addressable market
-
-3. PRODUCTS AND SERVICES
-- Description: Detailed explanation of offerings
-- Pricing Strategy: How products/services will be priced
-- Distribution Channels: How offerings will reach customers
-
-4. MARKET ANALYSIS
-- Market Trends: Current and future industry trends
-- Customer Segments: Detailed breakdown of customer types
-- Competitive Landscape: Analysis of direct and indirect competitors
-
-5. MARKETING STRATEGY
-- Promotion Strategies: How the business will attract customers
-- Customer Acquisition: Specific methods to convert prospects to customers
-- Sales Plan: Process for closing sales and maintaining relationships
-
-6. OPERATIONS PLAN
-- Location: Details about business location and why it was chosen
-- Facilities: Description of physical space requirements
-- Equipment: Technology and other capital needs
-- Day-to-day Operations: How the business will function
-
-7. MANAGEMENT TEAM
-- Organizational Structure: How the business will be organized
-- Key Members: Description of essential roles and responsibilities
-- External Resources: Advisors, consultants, and service providers
-
-8. FINANCIAL PLAN
-- Startup Costs: Detailed breakdown of initial expenses
-- Revenue Projections: Forecasted earnings over 3 years
-- Operating Costs: Monthly/annual expenses 
-- Break-Even Analysis: When the business becomes profitable
-
-9. RISK ANALYSIS
-- Potential Risks: Internal and external threats
-- Mitigation Strategies: Plans to address each risk
-
-10. IMPLEMENTATION TIMELINE
-- Key Milestones: Important dates and goals
-- Implementation Plan: Step-by-step action plan
-
-IMPORTANT GUIDELINES:
-- Be specific and detailed with practical information
-- Provide realistic numbers and timeframes where appropriate
-- Write in a professional business tone
-- Focus on actionable content that would be valuable to potential investors`;
+Be practical, concise, and business-focused.`;
 
 		try {
 			if (!model) {
 				throw new Error("Google Gemini model not initialized - check API key configuration");
 			}
 			
-			const result = await model.generateContent(prompt);
-			const response = await result.response;
-			const aiResponse = await response.text();
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 8000);
 			
-			console.log("Successfully generated AI content for business plan");
-			
-			return NextResponse.json({
-				businessName: formData.businessName,
-				industry: formData.industry,
-				businessType: formData.businessType,
-				location: formData.location,
-				rawResponse: aiResponse,
-				message: "Generated with AI"
-			});
+			try {
+				const result = await model.generateContent(prompt);
+				clearTimeout(timeoutId);
+				
+				const response = await result.response;
+				const aiResponse = await response.text();
+				
+				console.log("Successfully generated AI content for business plan");
+				
+				return NextResponse.json({
+					businessName: formData.businessName,
+					industry: formData.industry,
+					businessType: formData.businessType,
+					location: formData.location,
+					rawResponse: aiResponse,
+					message: "Generated with AI"
+				});
+			} catch (abortError) {
+				clearTimeout(timeoutId);
+				throw abortError;
+			}
 		} catch (error) {
 			console.error("Error calling Google Gemini API:", error);
 			
@@ -127,11 +99,11 @@ IMPORTANT GUIDELINES:
 				console.error("Possible API key configuration issue:", GOOGLE_API_KEY ? "Key exists but may be invalid" : "Key is missing");
 			}
 			
-			return NextResponse.json({
-				error: "Failed to generate business plan with AI",
-				message: errorMessage,
-				possibleKeyIssue: isKeyError
-			}, { status: 500 });
+			const basicResponse = createStructuredResponse(formData);
+			basicResponse.error = errorMessage;
+			basicResponse.message = "Failed to generate with AI - using basic template";
+			
+			return NextResponse.json(basicResponse, { status: 200 });
 		}
 	} catch (error) {
 		console.error("Error in API route:", error);
