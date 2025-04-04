@@ -14,7 +14,6 @@ export default function PlanPage() {
       try {
         const response = await fetch('/api/plan');
         if (response.status === 404) {
-          // No plan exists, redirect to generator
           router.push('/generator?error=No business plan found. Please generate one first.');
           return;
         }
@@ -35,20 +34,19 @@ export default function PlanPage() {
     fetchPlan();
   }, [router]);
 
-  // Function to clean up markdown formatting
   const cleanMarkdown = (text) => {
     if (!text) return '';
     
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold (**text**)
-      .replace(/\*(.*?)\*/g, '$1')     // Remove italic (*text*)
-      .replace(/```(.*?)```/gs, '$1')  // Remove code blocks
-      .replace(/^#+\s+/gm, '')         // Remove heading markers (# Heading)
-      .replace(/\[(.*?)\]\((.*?)\)/g, '$1') // Remove links but keep link text
-      .replace(/~~(.*?)~~/g, '$1')     // Remove strikethrough
-      .replace(/^>\s+/gm, '')          // Remove blockquotes
-      .replace(/\n-{3,}/g, '\n')       // Remove horizontal rules (---)
-      .replace(/\n={3,}/g, '\n');      // Remove horizontal rules (===)
+      .replace(/\*\*(.*?)\*\*/g, '$1') 
+      .replace(/\*(.*?)\*/g, '$1')     
+      .replace(/```(.*?)```/gs, '$1')  
+      .replace(/^#+\s+/gm, '')         
+      .replace(/\[(.*?)\]\((.*?)\)/g, '$1') 
+      .replace(/~~(.*?)~~/g, '$1')     
+      .replace(/^>\s+/gm, '')          
+      .replace(/\n-{3,}/g, '\n')       
+      .replace(/\n={3,}/g, '\n'); 
   };
 
   return (
@@ -96,7 +94,6 @@ export default function PlanPage() {
               </div>
             </div>
             
-            {/* Raw AI Response */}
             {plan.rawResponse && (
               <div className="mt-8">
                 <h2 className="bg-clip-text bg-gradient-to-r border-b border-purple-400/30 text-2xl text-transparent font-bold font-playfair from-purple-400 mb-6 pb-2 to-pink-400">
@@ -108,7 +105,6 @@ export default function PlanPage() {
               </div>
             )}
             
-            {/* Action Buttons */}
             <div className="flex justify-center mt-8 space-x-4">
               <button
                 onClick={() => window.print()}

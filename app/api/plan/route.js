@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 
-// This is a simple GET endpoint that returns the saved business plan
-// In a real application, this would fetch from a database
-// For now, we'll use a dummy plan or fetch from session/localStorage via cookies
-
-// Use a more persistent cache approach for Next.js
 let savedPlan = global.savedPlan || null;
 
-// Save plan to global object to persist between API calls
 function savePlanToGlobal(plan) {
   savedPlan = plan;
   global.savedPlan = plan;
@@ -17,7 +11,6 @@ function savePlanToGlobal(plan) {
 
 export async function GET() {
   try {
-    // If no plan has been saved yet, return a 404
     if (!savedPlan) {
       console.log('No plan found to retrieve');
       return NextResponse.json(
@@ -37,12 +30,10 @@ export async function GET() {
   }
 }
 
-// This endpoint saves a business plan
 export async function POST(request) {
   try {
     const plan = await request.json();
     
-    // Simply save the raw plan data without structure validation or processing
     savePlanToGlobal(plan);
     
     console.log('Plan saved successfully:', plan.businessName);

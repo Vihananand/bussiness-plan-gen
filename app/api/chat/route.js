@@ -1,13 +1,8 @@
-// Remove the SSL certificate bypass since we'll use Google's API which doesn't need it
-// Remove: process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// Initialize Google Generative AI with API key from environment variables
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
-// Check if API key is available
 if (!GOOGLE_API_KEY) {
 	console.error("GOOGLE_API_KEY environment variable is not set");
 }
@@ -26,13 +21,11 @@ export async function POST(request) {
 	try {
 		const formData = await request.json();
 		
-		// If AI is not enabled, return a basic response
 		if (!formData.useAI) {
 			const basicResponse = createStructuredResponse(formData);
 			return NextResponse.json(basicResponse);
 		}
 		
-		// Check if API key is properly configured
 		if (!GOOGLE_API_KEY) {
 			console.error("GOOGLE_API_KEY environment variable is missing");
 			return NextResponse.json({
@@ -41,7 +34,6 @@ export async function POST(request) {
 			}, { status: 500 });
 		}
 		
-		// Build the prompt for AI
 		const prompt = `Create a detailed business plan for the following business:
 		
 Business Name: ${formData.businessName || "Not specified"}
@@ -116,7 +108,6 @@ IMPORTANT GUIDELINES:
 - Focus on actionable content that would be valuable to potential investors`;
 
 		try {
-			// Call the Google Gemini API
 			if (!model) {
 				throw new Error("Google Gemini model not initialized - check API key configuration");
 			}
@@ -127,7 +118,6 @@ IMPORTANT GUIDELINES:
 			
 			console.log("Successfully generated AI content for business plan");
 			
-			// Return the raw AI response
 			return NextResponse.json({
 				businessName: formData.businessName,
 				industry: formData.industry,
@@ -139,7 +129,6 @@ IMPORTANT GUIDELINES:
 		} catch (error) {
 			console.error("Error calling Google Gemini API:", error);
 			
-			// Determine if it's an API key issue
 			const errorMessage = error.message || "Unknown error";
 			const isKeyError = errorMessage.includes("API key") || 
 				errorMessage.includes("authentication") || 
@@ -164,7 +153,6 @@ IMPORTANT GUIDELINES:
 	}
 }
 
-// Helper function to create the structured response
 function createStructuredResponse(formData) {
 	return {
 		data: {
@@ -229,12 +217,9 @@ function createStructuredResponse(formData) {
 	};
 }
 
-// Helper function to extract content for a specific topic
 function extractContent(aiResponse, topic) {
-	// Normalize the topic name
 	const normalizedTopic = topic.toLowerCase().trim();
 
-	// Try to find content based on headers or bold text
 	const patterns = [
 		// Match standard section headers (## Topic)
 		new RegExp(`##\\s*${topic}[:\\s-]+(.*?)(?=\\n##|\\n\\s*\\d+\\.|$)`, 'is'),
@@ -251,19 +236,14 @@ function extractContent(aiResponse, topic) {
 	for (const regex of patterns) {
 		const match = aiResponse.match(regex);
 		if (match && match[1]) {
-			// Clean up markdown formatting
 			let content = cleanupMarkdown(match[1].trim());
-
-			// If the content includes the topic name again, it likely has mixed content
 			if (content.toLowerCase().includes(normalizedTopic)) {
-				// Try to extract only the relevant part
 				const relevantMatch = content.match(new RegExp(`${normalizedTopic}[:\\s-]+([^.]+\\.)`, 'i'));
 				if (relevantMatch && relevantMatch[1]) {
 					content = relevantMatch[1].trim();
 				}
 			}
 
-			// Remove content that looks like a prompt repetition
 			content = content
 				.replace(/Please provide a detailed business plan/i, '')
 				.replace(/I'll create a detailed business plan/i, '')
@@ -279,30 +259,26 @@ function extractContent(aiResponse, topic) {
 	return "";
 }
 
-// Helper function to clean up markdown formatting
 function cleanupMarkdown(text) {
 	return text
-		.replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-		.replace(/\*(.*?)\*/g, '$1')     // Remove italic
-		.replace(/```(.*?)```/gs, '$1')  // Remove code blocks
-		.replace(/^-\s+/gm, '• ')        // Convert dashes to bullet points
-		.replace(/\n+/g, ' ')            // Replace multiple newlines with space
-		.replace(/\s\s+/g, ' ')          // Replace multiple spaces with single space
-		.replace(/FORMAT INSTRUCTIONS:.*$/s, '') // Remove format instructions
-		.replace(/IMPORTANT:.*$/s, '')   // Remove important notes
-		.replace(/Use simple formatting.*$/s, '') // Remove formatting guidelines
-		.replace(/When referring to.*$/s, '') // Remove component instructions
-		.replace(/Provide practical.*$/s, '') // Remove practical advice meta-instructions
-		.replace(/Be concise.*$/s, '')   // Remove conciseness meta-instructions
+		.replace(/\*\*(.*?)\*\*/g, '$1')
+		.replace(/\*(.*?)\*/g, '$1')     
+		.replace(/```(.*?)```/gs, '$1')  
+		.replace(/^-\s+/gm, '• ')       
+		.replace(/\n+/g, ' ')            
+		.replace(/\s\s+/g, ' ')          
+		.replace(/FORMAT INSTRUCTIONS:.*$/s, '') 
+		.replace(/IMPORTANT:.*$/s, '')  
+		.replace(/Use simple formatting.*$/s, '')
+		.replace(/When referring to.*$/s, '')
+		.replace(/Provide practical.*$/s, '') 
+		.replace(/Be concise.*$/s, '')
 		.trim();
 }
 
-// Helper function to fill in empty fields with AI-generated content
 function fillEmptyFields(structuredResponse, aiResponse) {
-	// Check if we have AI response
 	if (!aiResponse) return;
 
-	// Define search terms for each field with multiple possible matches
 	const searchTerms = {
 		executiveSummary: {
 			missionStatement: ['Mission Statement', 'Mission', 'Company Mission'],
@@ -358,24 +334,20 @@ function fillEmptyFields(structuredResponse, aiResponse) {
 		}
 	};
 
-	// Try to extract content for each field using multiple search terms
 	for (const section in searchTerms) {
 		for (const field in searchTerms[section]) {
-			// Only fill if the field is empty
 			if (!structuredResponse.data[section][field]) {
 				for (const term of searchTerms[section][field]) {
 					const content = extractContent(aiResponse, term);
 					if (content) {
 						structuredResponse.data[section][field] = content;
-						break; // Stop once we find content
+						break;
 					}
 				}
 			}
 		}
 	}
 
-	// Extract content from sections as fallback
-	// If we still have empty fields, try extracting from entire sections
 	const sections = {
 		'Executive Summary': 'executiveSummary',
 		'Business Overview': 'businessOverview',
@@ -389,26 +361,21 @@ function fillEmptyFields(structuredResponse, aiResponse) {
 		'Implementation Timeline': 'timeline'
 	};
 
-	// Extract entire sections as fallback
 	for (const [sectionName, sectionKey] of Object.entries(sections)) {
 		const sectionContent = extractContent(aiResponse, sectionName);
 
-		// If we have empty fields in this section and found content, fill them
 		for (const field in structuredResponse.data[sectionKey]) {
 			if (!structuredResponse.data[sectionKey][field] && sectionContent) {
-				// Create a simplified field name for searching
 				const simplifiedField = field
 					.replace(/([A-Z])/g, ' $1')
 					.toLowerCase();
 
-				// Look for content related to this field in the section
 				const fieldPattern = new RegExp(`${simplifiedField}[:\\s-]+(.*?)(?=\\n|$)`, 'i');
 				const match = sectionContent.match(fieldPattern);
 
 				if (match && match[1]) {
 					structuredResponse.data[sectionKey][field] = cleanupMarkdown(match[1].trim());
 				} else {
-					// Just use the entire section content as a fallback
 					structuredResponse.data[sectionKey][field] = `From ${sectionName}: ${sectionContent.substring(0, 200).trim()}...`;
 				}
 			}
@@ -416,42 +383,35 @@ function fillEmptyFields(structuredResponse, aiResponse) {
 	}
 }
 
-// Update the post-processing function to better handle Gemini output
 function postProcessData(structuredResponse) {
 	const data = structuredResponse.data;
 	
-	// For each section in the data object
 	for (const sectionKey in data) {
 		const section = data[sectionKey];
 		
-		// For each field in the current section
 		for (const fieldKey in section) {
 			let content = section[fieldKey];
 			
-			// Skip if empty or already processed
 			if (!content || content === 'Not specified') continue;
 			
-			// Remove section numbers and headers
 			content = content
-				.replace(/^\d+\.\s*[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/i, '')  // Remove "1. Section Name:"
-				.replace(/^[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/i, '')          // Remove "Section Name:"
-				.replace(/^See .*?:/i, '')                                      // Remove "See X:" references
-				.replace(/^From .*?:/i, '')                                     // Remove "From X:" references
-				.replace(/^\s*-\s+/g, '')                                       // Remove leading dashes
-				.replace(/\d+\.\s*[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/gi, '')  // Remove any other "1. Section Name:"
-				.replace(/[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/gi, '')          // Remove any other "Section Name:"
-				.replace(/IMPORTANT GUIDELINES:.*$/s, '')                       // Remove guidelines section
-				.replace(/FORMAT INSTRUCTIONS:.*$/s, '')                        // Remove format instructions
+				.replace(/^\d+\.\s*[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/i, '')  
+				.replace(/^[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/i, '')          
+				.replace(/^See .*?:/i, '')                                     
+				.replace(/^From .*?:/i, '')                                    
+				.replace(/^\s*-\s+/g, '')                                       
+				.replace(/\d+\.\s*[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/gi, '')  
+				.replace(/[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*[-:]/gi, '')          
+				.replace(/IMPORTANT GUIDELINES:.*$/s, '')                       
+				.replace(/FORMAT INSTRUCTIONS:.*$/s, '')                        
 				.trim();
 			
-			// Preserve paragraph breaks for better formatting
 			content = content
-				.replace(/\n{3,}/g, '\n\n')                                       // Normalize multiple line breaks
-				.replace(/([.!?])\s*\n/g, '$1\n\n')                               // Ensure sentence breaks have proper spacing
-				.replace(/•/g, '- ')                                              // Standardize bullet points
-				.replace(/^\s*[-*]\s*/gm, '- ');                                  // Standardize list markers
-			
-			// Format lists with proper line breaks
+				.replace(/\n{3,}/g, '\n\n')                                       
+				.replace(/([.!?])\s*\n/g, '$1\n\n')                               
+				.replace(/•/g, '- ')                                              
+				.replace(/^\s*[-*]\s*/gm, '- ');
+
 			if (content.includes('- ')) {
 				const lines = content.split('\n');
 				const formattedLines = [];
@@ -459,10 +419,7 @@ function postProcessData(structuredResponse) {
 				for (let i = 0; i < lines.length; i++) {
 					const line = lines[i].trim();
 					if (line.startsWith('- ')) {
-						// This is a list item, preserve it with spacing
 						formattedLines.push(line);
-						
-						// If next line doesn't start with bullet but is part of this item, append it
 						let nextIndex = i + 1;
 						while (nextIndex < lines.length && 
 							!lines[nextIndex].trim().startsWith('- ') && 
@@ -479,7 +436,6 @@ function postProcessData(structuredResponse) {
 				content = formattedLines.join('\n');
 			}
 			
-			// Update the field with cleaned and formatted content
 			section[fieldKey] = content.trim() || 'Not specified';
 		}
 	}

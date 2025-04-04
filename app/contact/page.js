@@ -12,7 +12,6 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log('Form submitted:', formData);
   };
 
@@ -27,7 +26,6 @@ export default function Contact() {
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Contact Us
@@ -38,13 +36,11 @@ export default function Contact() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Contact Information */}
           <div className="bg-gray-800 rounded-xl p-8 shadow-xl">
             <h2 className="text-2xl font-playfair font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Get in Touch
             </h2>
             <div className="space-y-6">
-              {/* Address */}
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +58,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Phone */}
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +70,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Email */}
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +82,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Social Links */}
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,13 +115,11 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Form */}
           <div className="bg-gray-800 rounded-xl p-8 shadow-xl">
             <h2 className="text-2xl font-playfair font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Send us a Message
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                   Name
@@ -144,7 +135,6 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Email
@@ -160,7 +150,6 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Subject */}
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
                   Subject
@@ -176,7 +165,6 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
                   Message
@@ -192,7 +180,6 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"

@@ -3,7 +3,6 @@ import Image from 'next/image';
 export default function About() {
     return (
       <div className="min-h-screen py-12 px-4">
-        {/* Hero Section */}
         <section className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             About BusinessPlan
@@ -13,7 +12,6 @@ export default function About() {
           </p>
         </section>
   
-        {/* Mission Section */}
         <section className="max-w-4xl mx-auto mb-16">
           <div className="bg-gray-800 rounded-xl p-8 shadow-xl">
             <h2 className="text-3xl font-playfair font-bold mb-6 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -25,13 +23,11 @@ export default function About() {
           </div>
         </section>
   
-        {/* Values Section */}
         <section className="max-w-6xl mx-auto mb-16">
           <h2 className="text-3xl font-playfair font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Our Values
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Value 1 */}
             <div className="bg-gray-800 p-6 rounded-xl text-center">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +40,6 @@ export default function About() {
               </p>
             </div>
   
-            {/* Value 2 */}
             <div className="bg-gray-800 p-6 rounded-xl text-center">
               <div className="w-16 h-16 bg-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +52,6 @@ export default function About() {
               </p>
             </div>
   
-            {/* Value 3 */}
             <div className="bg-gray-800 p-6 rounded-xl text-center">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,13 +66,11 @@ export default function About() {
           </div>
         </section>
   
-        {/* Team Section */}
         <section className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-playfair font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Our Team
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Team Member 1 */}
             <div className="bg-gray-800 rounded-xl overflow-hidden">
               <div className="h-64 relative">
                 <Image 
@@ -98,7 +90,6 @@ export default function About() {
               </div>
             </div>
   
-            {/* Team Member 2 */}
             <div className="bg-gray-800 rounded-xl overflow-hidden">
               <div className="h-64 relative">
                 <Image 
@@ -118,7 +109,6 @@ export default function About() {
               </div>
             </div>
   
-            {/* Team Member 3 */}
             <div className="bg-gray-800 rounded-xl overflow-hidden">
               <div className="h-64 relative">
                 <Image 

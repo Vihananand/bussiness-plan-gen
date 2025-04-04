@@ -5,22 +5,18 @@ import { useRouter } from 'next/navigation';
 
 export default function Generator() {
   const [formData, setFormData] = useState({
-    // Basic Information
     businessName: '',
     industry: '',
     businessType: '',
     location: '',
     
-    // Business Concept
     businessConcept: '',
     targetMarket: '',
     uniqueValue: '',
     
-    // Financial Estimates (Optional)
     startupCosts: '',
     expectedRevenue: '',
     
-    // Goals and Milestones
     keyMilestones: ''
   });
 
@@ -29,14 +25,11 @@ export default function Generator() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // Add useEffect to check for URL error parameters
   useEffect(() => {
-    // Check if there's an error parameter in the URL
     const params = new URLSearchParams(window.location.search);
     const errorMsg = params.get('error');
     if (errorMsg) {
       setError(errorMsg);
-      // Clear the URL parameter after reading it
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -46,7 +39,6 @@ export default function Generator() {
     setIsGenerating(true);
     
     try {
-      // Send the form data to the API
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -64,7 +56,6 @@ export default function Generator() {
       
       const data = await response.json();
       
-      // Save the generated plan
       const saveResponse = await fetch('/api/plan', {
         method: 'POST',
         headers: {
@@ -77,7 +68,6 @@ export default function Generator() {
         console.error('Failed to save business plan');
       }
       
-      // Redirect to the plan page
       router.push('/plan');
     } catch (error) {
       console.error('Error:', error);
@@ -110,7 +100,6 @@ export default function Generator() {
         
         <div className="bg-gray-800 p-8 rounded-xl shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* AI Generation Toggle */}
             <div className="flex justify-center mb-6">
               <label className="cursor-pointer inline-flex items-center relative">
                 <input
@@ -124,7 +113,6 @@ export default function Generator() {
               </label>
             </div>
 
-            {/* Basic Information */}
             <div className="space-y-6">
               <h2 className="bg-clip-text bg-gradient-to-r text-2xl text-center text-transparent font-bold font-playfair from-purple-400 to-pink-400">
                 Basic Information
@@ -198,7 +186,6 @@ export default function Generator() {
               </div>
             </div>
 
-            {/* Business Concept */}
             <div className="space-y-6">
               <h2 className="bg-clip-text bg-gradient-to-r text-2xl text-center text-transparent font-bold font-playfair from-purple-400 to-pink-400">
                 Business Concept
@@ -252,7 +239,6 @@ export default function Generator() {
               </div>
             </div>
 
-            {/* Financial & Goals (Optional) */}
             <div className="space-y-6">
               <h2 className="bg-clip-text bg-gradient-to-r text-2xl text-center text-transparent font-bold font-playfair from-purple-400 to-pink-400">
                 Financial & Goals (Optional)
@@ -303,7 +289,6 @@ export default function Generator() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"

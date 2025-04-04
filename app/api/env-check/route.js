@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // Check for environment variables without exposing actual values
     const envStatus = {
       GOOGLE_API_KEY: {
         exists: !!process.env.GOOGLE_API_KEY,
         length: process.env.GOOGLE_API_KEY ? process.env.GOOGLE_API_KEY.length : 0,
-        // Only show the first and last characters for verification
         preview: process.env.GOOGLE_API_KEY 
           ? `${process.env.GOOGLE_API_KEY.substring(0, 3)}...${process.env.GOOGLE_API_KEY.substring(process.env.GOOGLE_API_KEY.length - 3)}`
           : null

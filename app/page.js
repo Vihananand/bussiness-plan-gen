@@ -3,7 +3,6 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-pink-900/50 z-0"></div>
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
@@ -23,14 +22,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-playfair font-bold text-center mb-16 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Why Choose Us?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
             <div className="bg-gray-800 p-8 rounded-xl hover:bg-gray-700 transition-colors">
               <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +40,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="bg-gray-800 p-8 rounded-xl hover:bg-gray-700 transition-colors">
               <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +52,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="bg-gray-800 p-8 rounded-xl hover:bg-gray-700 transition-colors">
               <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +67,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-purple-900/50 to-pink-900/50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-playfair font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">

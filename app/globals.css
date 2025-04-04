@@ -16,7 +16,6 @@ body {
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -34,7 +33,6 @@ body {
   background: rgb(168, 85, 247);
 }
 
-/* Font classes */
 .font-playfair {
   font-family: var(--font-playfair);
 }
@@ -43,7 +41,6 @@ body {
   font-family: var(--font-inter);
 }
 
-/* Gradient text animation */
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
