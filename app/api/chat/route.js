@@ -6,8 +6,21 @@ import { NextResponse } from "next/server";
 
 // Initialize Google Generative AI with API key from environment variables
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// Check if API key is available
+if (!GOOGLE_API_KEY) {
+	console.error("GOOGLE_API_KEY environment variable is not set");
+}
+
+let genAI;
+let model;
+
+try {
+	genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+	model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+} catch (error) {
+	console.error("Error initializing Google Generative AI:", error);
+}
 
 export async function POST(request) {
 	try {
@@ -17,6 +30,15 @@ export async function POST(request) {
 		if (!formData.useAI) {
 			const basicResponse = createStructuredResponse(formData);
 			return NextResponse.json(basicResponse);
+		}
+		
+		// Check if API key is properly configured
+		if (!GOOGLE_API_KEY) {
+			console.error("GOOGLE_API_KEY environment variable is missing");
+			return NextResponse.json({
+				error: "API key not configured",
+				message: "Server configuration error: API key not available"
+			}, { status: 500 });
 		}
 		
 		// Build the prompt for AI
@@ -95,6 +117,10 @@ IMPORTANT GUIDELINES:
 
 		try {
 			// Call the Google Gemini API
+			if (!model) {
+				throw new Error("Google Gemini model not initialized - check API key configuration");
+			}
+			
 			const result = await model.generateContent(prompt);
 			const response = await result.response;
 			const aiResponse = await response.text();
@@ -112,9 +138,22 @@ IMPORTANT GUIDELINES:
 			});
 		} catch (error) {
 			console.error("Error calling Google Gemini API:", error);
+			
+			// Determine if it's an API key issue
+			const errorMessage = error.message || "Unknown error";
+			const isKeyError = errorMessage.includes("API key") || 
+				errorMessage.includes("authentication") || 
+				errorMessage.includes("auth") ||
+				errorMessage.includes("credential");
+				
+			if (isKeyError) {
+				console.error("Possible API key configuration issue:", GOOGLE_API_KEY ? "Key exists but may be invalid" : "Key is missing");
+			}
+			
 			return NextResponse.json({
 				error: "Failed to generate business plan with AI",
-				message: error.message
+				message: errorMessage,
+				possibleKeyIssue: isKeyError
 			}, { status: 500 });
 		}
 	} catch (error) {
