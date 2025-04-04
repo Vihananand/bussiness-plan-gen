@@ -1,11 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-
-if (!GOOGLE_API_KEY) {
-	console.error("GOOGLE_API_KEY environment variable is not set");
-}
+const GOOGLE_API_KEY = "AIzaSyDzTDgDu81wfiEoAq6ybh2VNvVs7-Gmexw";
 
 let genAI;
 let model;
@@ -24,14 +20,6 @@ export async function POST(request) {
 		if (!formData.useAI) {
 			const basicResponse = createStructuredResponse(formData);
 			return NextResponse.json(basicResponse);
-		}
-		
-		if (!GOOGLE_API_KEY) {
-			console.error("GOOGLE_API_KEY environment variable is missing");
-			return NextResponse.json({
-				error: "API key not configured",
-				message: "Server configuration error: API key not available"
-			}, { status: 500 });
 		}
 		
 		const prompt = `Create a detailed business plan for the following business:
